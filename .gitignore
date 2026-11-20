@@ -1,0 +1,28 @@
+# Abhängigkeiten & Build-Ergebnisse
+node_modules/
+build/
+*.exe
+*.blob
+*.ico
+*.lnk
+
+# Persönliche Daten – gehören NIE ins Repository
+# (die App speichert sie normalerweise unter %APPDATA%\Spielebibliothek)
+konten.json
+einstellungen.json
+cache.json
+bibliothek.json
+favoriten.json
+warteschlange.json
+angebote.json
+laeuft.json
+log.txt
+*.env
+.env*
+
+# Editor / System
+.claude/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

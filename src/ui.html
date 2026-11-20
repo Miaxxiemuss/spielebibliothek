@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spielebibliothek</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c8cff'/%3E%3Cstop offset='1' stop-color='%23a35cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='url(%23g)'/%3E%3Cpath fill='%23fff' d='M20 22h24c7 0 12 6 12 14l1 9c0 4-5 6-8 3l-6-6H21l-6 6c-3 3-8 1-8-3l1-9c0-8 5-14 12-14z'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0d0f14;--side:#12151c;--panel:#171b24;--card:#1a1f29;--card2:#202634;--line:#262d3a;--line2:#323b4c;
+  --fg:#eceff4;--muted:#8d96a6;--dim:#5f6878;--accent:#7c8cff;--accent2:#a35cff;
+  --s1:#34d17a;--s2:#9ad54a;--s3:#e8c33a;--s4:#f0954a;--s5:#f06a6a;--s6:#5f6878;
+  --steam:#66c0f4;--epic:#e6e6e6;--gog:#c86ef0;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#2a3140;border-radius:10px;border:2px solid var(--bg)}::-webkit-scrollbar-track{background:transparent}
+.muted{color:var(--muted)}.small{font-size:12px}
+
+/* Seitenleiste */
+.side{width:252px;flex:none;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 12px;gap:4px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 18px;font-weight:700;font-size:16px;letter-spacing:.2px}
+.brand svg{width:30px;height:30px;flex:none}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:0;background:none;text-align:left;color:var(--muted);font-weight:550}
+.nav svg{width:18px;height:18px;flex:none}
+.nav:hover{background:var(--panel);color:var(--fg)}
+.nav.on{background:var(--card2);color:var(--fg)}
+.nav .cnt{margin-left:auto;font-size:12px;color:var(--dim);font-weight:500}
+.sect{font-size:11px;text-transform:uppercase;letter-spacing:.9px;color:var(--dim);padding:18px 10px 6px;font-weight:650}
+.devbtn{display:block;width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:10px;padding:9px 10px}
+.devbtn:hover{background:var(--panel)}
+.devbtn.on{background:var(--card2);border-color:var(--line2)}
+.devbtn b{display:block;font-size:13.5px;font-weight:600}
+.devbtn span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.perf{height:4px;border-radius:4px;background:var(--line);margin-top:7px;overflow:hidden}
+.perf i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.grow{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--card2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:#46516a}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:0;color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:none}
+.btn.danger{color:var(--s5)}
+.btn:disabled{opacity:.5;cursor:default}
+.scanbox{padding:10px 4px 0}
+.scanbox .btn{width:100%}
+.scanbox .small{text-align:center;margin-top:8px}
+.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Hauptbereich */
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+.view{flex:1;overflow-y:auto;display:none}
+.view.on{display:block}
+.wrap{max-width:1500px;margin:0 auto;padding:22px 28px 60px}
+.head{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.head h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.3px}
+.head .sub{color:var(--muted);margin-top:2px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 80%,transparent);padding:12px 28px 14px;margin:0 -28px}
+.search{position:relative;flex:1;min-width:200px;max-width:380px}
+.search input{width:100%;padding-left:36px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim)}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:5px 11px;border-radius:7px;color:var(--muted);font-weight:550;font-size:13px}
+.seg button.on{background:var(--card2);color:var(--fg);box-shadow:0 1px 2px #0006}
+.seg button svg{width:15px;height:15px;vertical-align:-3px}
+
+/* Verteilung */
+.dist{display:flex;height:8px;border-radius:8px;overflow:hidden;background:var(--line);margin:4px 0 10px}
+.dist i{display:block;height:100%}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel);border-radius:99px;padding:4px 11px;font-size:12.5px;color:var(--muted)}
+.chip b{color:var(--fg);font-weight:650}
+.chip.on{border-color:var(--fg);color:var(--fg)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+
+/* Raster */
+.grp h2{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:650;margin:26px 0 12px}
+.grp h2 .n{color:var(--dim);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:18px 16px}
+.card{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:8px}
+.cover{position:relative;aspect-ratio:2/3;border-radius:var(--r);overflow:hidden;background:var(--card);box-shadow:0 6px 18px #0007;transition:transform .18s,box-shadow .18s}
+.card:hover .cover,.card:focus-visible .cover{transform:translateY(-4px);box-shadow:0 14px 30px #000a,0 0 0 2px var(--accent)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover.wide{background:var(--card)}
+.cover.wide::before{content:"";position:absolute;inset:-20px;background:var(--wbg) center/cover;filter:blur(18px) brightness(.55)}
+.cover.wide img{position:relative;object-fit:contain}
+.cover.none{display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#2a3150,#1a1f29)}
+.cover.none img{display:none}
+.cover .ini{font-size:34px;font-weight:800;color:#ffffff30;display:none}
+.cover.none .ini{display:block}
+.badge{position:absolute;top:8px;left:8px;font-size:10.5px;font-weight:700;letter-spacing:.4px;padding:3px 7px;border-radius:6px;background:#0b0d12d0;backdrop-filter:blur(6px)}
+.b-Steam{color:var(--steam)}.b-Epic{color:var(--epic)}.b-GOG{color:var(--gog)}.b-Manuell{color:var(--muted)}
+.b-EA{color:#ff5a5a}.b-Ubisoft{color:#4c9bff}.b-Battlenet{color:#29b6ff}.b-Rockstar{color:#fcaf17}.b-Amazon{color:#ff9f1a}.b-Riot{color:#ff5866}.b-Xbox{color:#5dc21e}.b-itchio{color:#fa6a6a}
+.inst{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#0b0d12d0;display:flex;align-items:center;justify-content:center;color:var(--s1)}
+.inst svg{width:13px;height:13px}
+.fpsbadge{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:7px;padding:5px 9px;border-radius:8px;background:#0b0d12e0;backdrop-filter:blur(6px);font-size:12px;font-weight:650}
+.fpsbadge .st{color:var(--muted);font-weight:500;margin-left:auto;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .nm{font-weight:600;font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding:0 2px}
+
+/* Liste */
+table.list{width:100%;border-collapse:separate;border-spacing:0 6px}
+.list th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);font-weight:650;text-align:left;padding:4px 12px}
+.list td{background:var(--card);padding:8px 12px;vertical-align:middle}
+.list tr.row{cursor:pointer}
+.list tr.row:hover td{background:var(--card2)}
+.list td:first-child{border-radius:10px 0 0 10px}.list td:last-child{border-radius:0 10px 10px 0}
+.list .thumb{width:120px;height:45px;border-radius:6px;object-fit:cover;background:var(--line);display:block}
+.list .t{font-weight:600}
+.list .g{font-size:12px;color:var(--muted)}
+.cell{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:13px}
+.cell small{color:var(--muted)}
+
+/* Leer-Zustand */
+.empty{max-width:560px;margin:10vh auto;text-align:center;padding:30px}
+.empty .ico{width:84px;height:84px;margin:0 auto 18px}
+.empty h2{margin:0 0 8px;font-size:22px}
+.empty p{color:var(--muted);margin:0 0 22px}
+.empty .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* Fortschritt */
+.progress{display:none;padding:10px 28px;background:var(--side);border-bottom:1px solid var(--line);align-items:center;gap:14px;font-size:13px}
+.progress.on{display:flex}
+.progress .bar{flex:1;max-width:420px;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+.progress .bar.ind i{width:30%;animation:ind 1.2s ease-in-out infinite}
+@keyframes ind{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+.progress .txt{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+
+/* Detail */
+.back{position:fixed;inset:0;background:#05060acc;backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow-y:auto;padding:40px 20px}
+.back.on{display:flex}
+#detail{z-index:60}
+.modal{width:min(960px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px #000c;animation:pop .18s ease-out}
+@keyframes pop{from{transform:translateY(12px) scale(.98);opacity:0}}
+.hero{position:relative;height:300px;background:var(--card)}
+.hero .bgimg{position:absolute;inset:0;background:var(--hero) center/cover;filter:brightness(.55)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--panel))}
+.hero .hdr{position:absolute;left:28px;bottom:22px;width:300px;max-width:45%;border-radius:10px;box-shadow:0 10px 30px #000a;z-index:1}
+.hero .x{position:absolute;top:14px;right:14px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:#0b0d12b0;display:flex;align-items:center;justify-content:center}
+.hero .x svg{width:18px;height:18px}
+.mb{padding:6px 28px 28px}
+.mt{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.mt h2{margin:0;font-size:26px;letter-spacing:-.3px;flex:1;min-width:240px}
+.mt .acts{display:flex;gap:8px}
+.meta{color:var(--muted);margin:6px 0 10px;display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px}
+.metascore{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;border-radius:6px;font-weight:800;font-size:12px;color:#0d0f14;padding:0 5px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
+.tag{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--card2);color:var(--muted)}
+.desc{font-size:15px;line-height:1.6;color:#cfd5df;margin:0 0 22px}
+.mb h3{font-size:12px;text-transform:uppercase;letter-spacing:.9px;color:var(--dim);margin:22px 0 10px;font-weight:700}
+.drows{display:grid;gap:8px}
+.drow{display:grid;grid-template-columns:200px 1fr 210px;gap:16px;align-items:center;background:var(--card);border-radius:12px;padding:12px 16px}
+.drow b{display:block;font-size:14px}
+.drow .g{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbar{height:10px;border-radius:10px;background:var(--line);overflow:hidden;position:relative}
+.fbar i{display:block;height:100%;border-radius:10px}
+.fbar .m{position:absolute;top:-2px;bottom:-2px;width:2px;background:#ffffff40}
+.drow .r{text-align:right}
+.drow .r .big{font-size:18px;font-weight:750;font-variant-numeric:tabular-nums}
+.drow .r .s{font-size:12px;color:var(--muted)}
+.drow .notes{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:-4px}
+.reqs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.req{background:var(--card);border-radius:12px;padding:14px 16px;font-size:13px}
+.req b{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.req div{margin:3px 0}
+.req span{color:var(--muted)}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;gap:6px;align-items:center;background:var(--card);border-radius:9px;padding:6px 11px;font-size:13px}
+.pill span{color:var(--muted)}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.shots img{width:100%;border-radius:8px;display:block;aspect-ratio:16/9;object-fit:cover;background:var(--card)}
+
+/* Geräte + Konten */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.box h3{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:10px}
+.box .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:550}
+.form label.full{grid-column:1/-1}
+.form .chk{flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px}
+.form .chk input{width:16px;height:16px;accent-color:var(--accent)}
+.gpuok{font-size:12px;margin-top:2px}
+.boxfoot{display:flex;gap:8px;justify-content:space-between;margin-top:14px;align-items:center}
+.savebar{display:flex;gap:10px;align-items:center;margin:18px 0}
+.acc .logo{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none}
+.state{margin-left:auto;font-size:12px;font-weight:650;padding:3px 10px;border-radius:99px}
+.state.ok{background:#34d17a22;color:var(--s1)}
+.state.no{background:var(--card2);color:var(--muted)}
+.steps{display:grid;gap:10px;margin-top:4px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step .n{width:22px;height:22px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none;margin-top:2px}
+.step .c{flex:1;display:flex;flex-direction:column;gap:7px;font-size:13px}
+.step .c .in{display:flex;gap:8px}
+.step .c .in input{flex:1;min-width:0}
+.hint{font-size:12px;color:var(--muted)}
+.note{background:var(--card);border-radius:12px;padding:12px 16px;color:var(--muted);font-size:13px;margin-bottom:18px}
+
+/* Toast */
+.toasts{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:90}
+.toast{background:var(--card2);border:1px solid var(--line2);border-left:3px solid var(--s1);border-radius:10px;padding:11px 16px;box-shadow:0 10px 30px #0009;max-width:380px;animation:pop .2s}
+.toast.err{border-left-color:var(--s5)}.toast.warn{border-left-color:var(--s4)}
+
+/* Favoriten-Herz */
+.heart{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#0b0d12c8;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;opacity:0;transition:opacity .15s,transform .15s;cursor:pointer;z-index:2}
+.heart svg{width:16px;height:16px}
+.card:hover .heart,.heart.on{opacity:1}
+.heart:hover{transform:scale(1.12)}
+.heart.on{color:#ff5c8a}
+.heart.on svg{fill:currentColor}
+.cover .inst{right:auto;left:auto;top:auto;bottom:44px;right:8px}
+.btn.fav.on{color:#ff5c8a;border-color:#ff5c8a66}
+.btn.fav.on svg{fill:currentColor}
+.nav.dice{margin-top:6px;background:linear-gradient(135deg,#7c8cff22,#a35cff22);color:var(--fg);border:1px solid #7c8cff44}
+.nav.dice:hover{background:linear-gradient(135deg,#7c8cff40,#a35cff40)}
+
+/* Angebote */
+.freerow{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:8px}
+.free{position:relative;border:0;padding:0;border-radius:16px;overflow:hidden;background:var(--card);text-align:left;box-shadow:0 8px 24px #0008;min-height:170px}
+.free .im{position:absolute;inset:0;background:var(--img) center/cover;transition:transform .3s}
+.free:hover .im{transform:scale(1.04)}
+.free::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#07080cf0 10%,#07080c40 60%,transparent)}
+.free .tx{position:absolute;left:16px;right:16px;bottom:14px;z-index:1}
+.free .tx b{display:block;font-size:17px;margin:6px 0 2px}
+.free .tx span{font-size:12.5px;color:#cfd5df}
+.flag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:6px;background:var(--s1);color:#05130b}
+.flag.soon{background:#2c3446;color:#cfd5df}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.deal{border:0;padding:0;background:var(--card);border-radius:14px;overflow:hidden;text-align:left;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
+.deal:hover{transform:translateY(-3px);box-shadow:0 12px 28px #000a,0 0 0 2px var(--accent)}
+.deal .im{position:relative;aspect-ratio:460/215;background:var(--card2) center/cover}
+.deal .im img{width:100%;height:100%;object-fit:cover;display:block}
+.disc{position:absolute;right:8px;bottom:8px;background:#4c6b22;color:#d2f589;font-weight:800;font-size:14px;padding:3px 8px;border-radius:7px}
+.deal .owned{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#0b0d12d8;color:var(--s1)}
+.deal .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.deal .t{font-weight:600;font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.deal .pr{display:flex;align-items:baseline;gap:8px;margin-top:auto}
+.deal .pr s{color:var(--dim);font-size:12.5px}
+.deal .pr b{font-size:17px}
+.deal .pr .rt{margin-left:auto;font-size:12px;color:var(--muted)}
+.dealhead{display:flex;gap:10px;align-items:center;margin:26px 0 12px}
+.dealhead h2{margin:0;font-size:17px}
+.loading{display:flex;align-items:center;gap:10px;color:var(--muted);padding:20px 0}
+
+/* Favoriten */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:6px 0 10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font-size:24px;font-weight:750;letter-spacing:-.4px}
+.stat span{font-size:12.5px;color:var(--muted)}
+.frow{display:grid;grid-template-columns:150px 1fr auto auto;gap:16px;align-items:center;background:var(--card);border-radius:12px;padding:10px 14px 10px 10px;margin-bottom:8px;cursor:pointer}
+.frow:hover{background:var(--card2)}
+.frow img{width:150px;height:56px;object-fit:cover;border-radius:8px;background:var(--line);display:block}
+.frow .t{font-weight:600}
+.frow .g{font-size:12px;color:var(--muted)}
+.frow .devs{display:flex;gap:14px}
+.frow .acts{display:flex;gap:6px}
+.frow .btn{padding:7px 11px}
+
+/* Zufall */
+.rnd{display:grid;grid-template-columns:260px 1fr;gap:26px;padding:24px 28px 28px}
+.rnd .cv{aspect-ratio:2/3;border-radius:14px;background:var(--card) center/cover;box-shadow:0 14px 40px #000b;position:relative;overflow:hidden}
+.rnd .cv.spin{animation:wob .12s linear infinite}
+@keyframes wob{0%{transform:rotate(-1deg) scale(.99)}50%{transform:rotate(1deg) scale(1.01)}100%{transform:rotate(-1deg) scale(.99)}}
+.rnd .cv.land{animation:land .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes land{from{transform:scale(.85)}to{transform:scale(1)}}
+.rnd h2{margin:0 0 6px;font-size:26px;letter-spacing:-.3px}
+.opts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:16px 28px 0}
+.opts label{display:flex;gap:7px;align-items:center;font-size:13px;color:var(--muted)}
+.opts input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+.rnd .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.rhead{display:flex;align-items:center;gap:12px;padding:20px 28px 0}
+.rhead h3{margin:0;font-size:20px}
+.rhead .x{margin-left:auto;width:34px;height:34px;border-radius:50%;border:0;background:var(--card2);display:flex;align-items:center;justify-content:center}
+.rhead .x svg{width:16px;height:16px}
+
+/* Downloads */
+.dlmini{display:none;margin:8px 4px 0;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);cursor:pointer;font-size:12px}
+.dlmini.on{display:block}
+.dlmini b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}
+.pbar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+.pbar.ok i{background:var(--s1)}
+.pbar.big{height:10px}
+.dlact{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:16px;display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:center;margin-bottom:12px}
+.dlact img{width:220px;aspect-ratio:460/215;object-fit:cover;border-radius:10px;background:var(--card);display:block}
+.dlact h3{margin:0 0 4px;font-size:19px}
+.dlact .nums{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 0 12px;font-variant-numeric:tabular-nums}
+.dlact .nums b{color:var(--fg)}
+.dlrow{display:grid;grid-template-columns:120px 1fr auto;gap:14px;align-items:center;background:var(--card);border-radius:12px;padding:8px 12px 8px 8px;margin-bottom:8px}
+.dlrow img{width:120px;aspect-ratio:460/215;object-fit:cover;border-radius:7px;background:var(--line);display:block}
+.dlrow .t{font-weight:600}
+.dlrow .s{font-size:12px;color:var(--muted)}
+.dlrow .acts,.dlact .acts{display:flex;gap:6px;flex-wrap:wrap}
+.dlrow .btn,.dlact .btn{padding:7px 11px}
+.st-fehler{color:var(--s5)}.st-ok{color:var(--s1)}
+.pathrow{display:flex;gap:8px}.pathrow input{flex:1;min-width:0}
+
+@media (max-width:860px){.dlact{grid-template-columns:1fr}.dlact img{width:100%}}
+@media (max-width:860px){.rnd{grid-template-columns:1fr}.frow{grid-template-columns:1fr}.frow img{width:100%;height:auto;aspect-ratio:460/215}}
+@media (max-width:860px){.side{width:200px}.drow{grid-template-columns:1fr}.drow .r{text-align:left}.reqs{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.hero .hdr{display:none}}
+</style>
+</head>
+<body>
+
+<aside class="side">
+  <div class="brand">
+    <svg viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#a35cff"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="15" fill="url(#lg)"/><path fill="#fff" d="M20 21h24c7 0 12 6 12 14l1 10c0 4-5 6-8 3l-6-6H21l-6 6c-3 3-8 1-8-3l1-10c0-8 5-14 12-14z"/><path fill="url(#lg)" d="M19 29h4v4h4v4h-4v4h-4v-4h-4v-4h4z"/><circle cx="43" cy="31" r="2.6" fill="url(#lg)"/><circle cx="48" cy="36" r="2.6" fill="url(#lg)"/></svg>
+    Spielebibliothek
+  </div>
+  <button class="nav on" data-view="lib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Bibliothek<span class="cnt" id="navCount"></span></button>
+  <button class="nav" data-view="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.4C1.4 7.6 3.6 4 7.2 4c2 0 3.6 1.1 4.8 2.7C13.2 5.1 14.8 4 16.8 4c3.6 0 5.8 3.6 4.5 7.1-1.8 4.8-9.3 9.4-9.3 9.4z"/></svg>Favoriten<span class="cnt" id="favCount"></span></button>
+  <button class="nav" data-view="deals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Angebote</button>
+  <button class="nav" data-view="dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Downloads<span class="cnt" id="dlCount"></span></button>
+  <button class="nav" data-view="dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Geräte</button>
+  <button class="nav" data-view="acc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Konten<span class="cnt" id="accCount"></span></button>
+  <button class="nav dice" id="diceBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>Überrasch mich!</button>
+
+  <div class="sect">Bewerten für</div>
+  <div id="devList"></div>
+
+  <div class="grow"></div>
+  <div class="dlmini" id="dlMini" onclick="show('dl')"></div>
+  <div class="scanbox">
+    <button class="btn primary" id="scanBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg><span>Bibliothek aktualisieren</span></button>
+    <div class="small muted" id="lastScan"></div>
+  </div>
+</aside>
+
+<main>
+  <div class="progress" id="progress"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg><div class="txt" id="progTxt">Lese Bibliothek …</div><div class="bar" id="progBar"><i></i></div><div class="small muted" id="progNum"></div></div>
+
+  <!-- Bibliothek -->
+  <section class="view on" id="view-lib"><div class="wrap">
+    <div class="head"><div><h1>Bibliothek</h1><div class="sub" id="libSub"></div></div></div>
+    <div id="libBody"></div>
+  </div></section>
+
+  <!-- Favoriten -->
+  <section class="view" id="view-fav"><div class="wrap">
+    <div class="head"><div><h1>Favoriten</h1><div class="sub">Spiele, die du installieren und spielen möchtest.</div></div></div>
+    <div id="favBody"></div>
+  </div></section>
+
+  <!-- Angebote -->
+  <section class="view" id="view-deals"><div class="wrap">
+    <div class="head"><div><h1>Angebote</h1><div class="sub" id="dealSub">Aktuelle Sales von Steam, Epic Games und GOG</div></div><div class="grow"></div><button class="btn" id="dealRefresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>Aktualisieren</button></div>
+    <div id="dealBody"></div>
+  </div></section>
+
+  <!-- Downloads -->
+  <section class="view" id="view-dl"><div class="wrap">
+    <div class="head"><div><h1>Downloads</h1><div class="sub">GOG-Spiele lädt und installiert die App selbst. Steam- und Epic-Spiele werden an den jeweiligen Launcher übergeben.</div></div></div>
+    <div id="dlBody"></div>
+  </div></section>
+
+  <!-- Geräte -->
+  <section class="view" id="view-dev"><div class="wrap">
+    <div class="head"><div><h1>Geräte</h1><div class="sub">Für jedes Gerät wird geschätzt, welche Spiele wie gut laufen.</div></div></div>
+    <div class="savebar"><button class="btn" id="addDev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Gerät hinzufügen</button>
+      <select id="addPreset"><option value="">Vorlage …</option><option value="deck">Steam Deck</option><option value="ally">ROG Ally</option><option value="pc">Gaming-PC</option><option value="laptop">Laptop</option></select>
+      <div class="grow"></div><span class="small muted" id="devDirty"></span><button class="btn primary" id="saveDev">Speichern</button></div>
+    <div class="cards" id="devCards"></div>
+    <datalist id="gpus"></datalist>
+  </div></section>
+
+  <!-- Konten -->
+  <section class="view" id="view-acc"><div class="wrap">
+    <div class="head"><div><h1>Konten</h1><div class="sub">Verbinde deine Stores, damit auch gekaufte, nicht installierte Spiele erscheinen.</div></div></div>
+    <div class="note">Dein Passwort gibst du nur auf den offiziellen Seiten von Steam, Epic und GOG ein – nie hier. Gespeichert wird nur ein Zugangs-Token auf diesem PC.</div>
+    <div class="cards" id="accCards"></div>
+  </div></section>
+</main>
+
+<div class="back" id="detail"><div class="modal" id="modal"></div></div>
+<div class="back" id="random"><div class="modal" id="rmodal"></div></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+const T = new URLSearchParams(location.search).get('t') || '';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const api = (p, body) => fetch('/api/' + p, { method: body ? 'POST' : 'GET', headers: { 'x-token': T, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+  .then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || ('Fehler ' + r.status)); return j; });
+
+const COL = { 'läuft super': 'var(--s1)', 'gut spielbar': 'var(--s2)', 'spielbar': 'var(--s3)', 'vermutlich spielbar': 'var(--s3)', 'grenzwertig': 'var(--s4)', 'nicht spielbar': 'var(--s5)', 'unbekannt': 'var(--s6)', 'nicht verfügbar': 'var(--s6)' };
+const cap1 = s => s.charAt(0).toUpperCase() + s.slice(1);
+const sc = s => String(s || '').replace(/[^A-Za-z0-9]/g, '');
+const ICON = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>',
+  ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.4C1.4 7.6 3.6 4 7.2 4c2 0 3.6 1.1 4.8 2.7C13.2 5.1 14.8 4 16.8 4c3.6 0 5.8 3.6 4.5 7.1-1.8 4.8-9.3 9.4-9.3 9.4z"/></svg>',
+  dice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+};
+
+let S = null;
+const ui = { view: 'lib', dev: 0, q: '', store: '', inst: '', sort: 'status', mode: 'grid', only: null };
+try { Object.assign(ui, JSON.parse(localStorage.getItem('ui') || '{}'), { q: '', only: null, view: 'lib' }); } catch {}
+const saveUi = () => { try { localStorage.setItem('ui', JSON.stringify(ui)); } catch {} };
+
+function toast(text, kind = '') {
+  const el = document.createElement('div'); el.className = 'toast ' + kind; el.textContent = text;
+  $('toasts').appendChild(el); setTimeout(() => el.remove(), kind === 'err' ? 7000 : 4000);
+}
+
+async function load() {
+  try { S = await api('state'); } catch (e) { toast('Verbindung zur App verloren: ' + e.message, 'err'); return; }
+  if (ui.dev >= S.devices.length) ui.dev = 0;
+  if (S.scanning) showProgress(S.scanning);
+  for (const q of S.queue || []) if (lastQNotice[q.id] === undefined) lastQNotice[q.id] = q.status;
+  renderSide(); renderLib(); if (ui.view === 'dev' && !devDirty) renderDevices(); if (ui.view === 'acc') renderAccounts(); if (ui.view === 'fav') renderFav();
+}
+
+// ---------------- Seitenleiste ----------------
+const perfPct = s => s ? Math.max(4, Math.min(100, Math.log(s / 50) / Math.log(1000) * 100)) : 0;
+function renderSide() {
+  $('devList').innerHTML = S.devices.map((d, i) => `<button class="devbtn${i === ui.dev ? ' on' : ''}" data-i="${i}"><b>${esc(d.name)}</b><span>${esc(d.gpu || 'Grafik unbekannt')}</span><div class="perf"><i style="width:${perfPct(d.score)}%"></i></div></button>`).join('');
+  document.querySelectorAll('.devbtn').forEach(b => b.onclick = () => { ui.dev = +b.dataset.i; ui.only = null; saveUi(); renderSide(); renderLib(); });
+  $('navCount').textContent = S.games.length || '';
+  $('favCount').textContent = S.games.filter(g => g.fav).length || '';
+  renderDlMini();
+  const n = ['steam', 'epic', 'gog', 'itch'].filter(k => S.accounts[k] && S.accounts[k].connected).length;
+  $('accCount').textContent = n + '/4';
+  $('lastScan').textContent = S.scannedAt ? 'Zuletzt: ' + new Date(S.scannedAt).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : 'Noch nicht eingelesen';
+}
+document.querySelectorAll('.nav[data-view]').forEach(b => b.onclick = () => show(b.dataset.view));
+$('diceBtn').onclick = () => openRandom();
+function show(v) {
+  ui.view = v;
+  document.querySelectorAll('.nav[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === 'view-' + v));
+  if (v === 'dev') renderDevices(); if (v === 'acc') renderAccounts(); if (v === 'lib') renderLib();
+  if (v === 'fav') renderFav(); if (v === 'deals') renderDeals(); if (v === 'dl') renderDl();
+}
+
+// ---------------- Bibliothek ----------------
+function filtered() {
+  const q = ui.q.toLowerCase();
+  return S.games.map((g, i) => ({ g, i })).filter(({ g }) =>
+    (!ui.store || g.store === ui.store) &&
+    (!ui.inst || (ui.inst === '1') === !!g.installed) &&
+    (!q || (g.name + ' ' + (g.genres || []).join(' ') + ' ' + (g.dev || '')).toLowerCase().includes(q)));
+}
+const nameCmp = (a, b) => a.g.name.localeCompare(b.g.name, 'de');
+const est = g => g.est[ui.dev] || { status: 'unbekannt', note: [] };
+const fpsText = e => e.fps ? (e.capped ? e.fps + '+' : '~' + e.fps) + ' FPS' : '';
+
+function portrait(g) {
+  if (g.tall) return g.tall;
+  const id = g.steamId;
+  return id ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/library_600x900.jpg` : '';
+}
+window.coverFail = img => {
+  const c = img.parentElement, wide = img.dataset.wide;
+  if (wide && !c.classList.contains('wide')) { c.classList.add('wide'); c.style.setProperty('--wbg', `url("${wide}")`); img.src = wide; }
+  else c.classList.add('none');
+};
+const initials = n => esc(n.replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase());
+
+function card({ g, i }) {
+  const e = est(g), p = portrait(g);
+  const src = p || g.img || '';
+  const cls = p ? '' : (g.img ? ' wide' : ' none');
+  const style = !p && g.img ? ` style="--wbg:url('${esc(g.img)}')"` : '';
+  return `<button class="card" data-i="${i}"><div class="cover${cls}"${style}>
+    <img loading="lazy" src="${esc(src)}" data-wide="${esc(g.img || '')}" onerror="coverFail(this)" alt="">
+    <span class="ini">${initials(g.name)}</span>
+    <span class="badge b-${sc(g.store)}">${esc(g.store.toUpperCase())}</span>
+    ${g.installed ? `<span class="inst" title="Installiert">${ICON.check}</span>` : ''}
+    <span class="heart${g.fav ? ' on' : ''}" data-fav="${i}" title="${g.fav ? 'Aus Favoriten entfernen' : 'Zu Favoriten'}">${ICON.heart}</span>
+    <div class="fpsbadge"><span class="dot" style="background:${COL[e.status]}"></span>${esc(fpsText(e) || cap1(e.status))}${e.fps ? `<span class="st">${esc(e.status)}</span>` : ''}</div>
+  </div><div class="nm">${esc(g.name)}</div></button>`;
+}
+
+function listTable(items) {
+  const head = `<tr><th></th><th>Spiel</th><th>Store</th>${S.devices.map((d, i) => `<th style="${i === ui.dev ? 'color:var(--fg)' : ''}">${esc(d.name)}</th>`).join('')}</tr>`;
+  const rows = items.map(({ g, i }) => `<tr class="row" data-i="${i}"><td style="width:136px"><img class="thumb" loading="lazy" src="${esc(g.img || '')}" onerror="this.style.visibility='hidden'" alt=""></td>
+    <td><div class="t">${esc(g.name)}</div><div class="g">${esc((g.genres || []).slice(0, 3).join(' · '))}${g.installed ? ' · <span style="color:var(--s1)">installiert</span>' : ''}</div></td>
+    <td><span class="b-${sc(g.store)}" style="font-weight:700;font-size:12px">${esc(g.store)}</span></td>
+    ${g.est.map(e => `<td><div class="cell"><span class="dot" style="background:${COL[e.status]}"></span>${e.fps ? `<b>${esc(fpsText(e))}</b> <small>${esc(e.preset || '')}</small>` : `<small>${esc(e.status)}</small>`}</div></td>`).join('')}</tr>`).join('');
+  return `<table class="list">${head}${rows}</table>`;
+}
+
+function renderLib() {
+  if (!S) return;
+  const body = $('libBody');
+  const dev = S.devices[ui.dev];
+  if (!S.games.length) {
+    $('libSub').textContent = '';
+    body.innerHTML = `<div class="empty"><svg class="ico" viewBox="0 0 64 64"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#a35cff"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="15" fill="url(#lg2)"/><path fill="#fff" d="M20 21h24c7 0 12 6 12 14l1 10c0 4-5 6-8 3l-6-6H21l-6 6c-3 3-8 1-8-3l1-10c0-8 5-14 12-14z"/></svg>
+      <h2>${S.scanning ? 'Deine Spiele werden eingelesen …' : 'Noch keine Spiele eingelesen'}</h2>
+      <p>${S.scanning ? 'Beim ersten Mal lädt die App Beschreibungen und Systemanforderungen – das kann ein paar Minuten dauern.' : 'Installierte Spiele werden automatisch gefunden. Verbinde deine Konten, um auch gekaufte, nicht installierte Spiele zu sehen.'}</p>
+      ${S.scanning ? '' : `<div class="row"><button class="btn primary" onclick="scan()">Bibliothek einlesen</button><button class="btn" onclick="show('acc')">Konten verbinden</button></div>`}</div>`;
+    return;
+  }
+  const inst = S.games.filter(g => g.installed).length;
+  $('libSub').innerHTML = `${S.games.length} Spiele · ${inst} installiert · bewertet für <b style="color:var(--fg)">${esc(dev ? dev.name : '–')}</b>`;
+
+  let items = filtered();
+  const cnt = {}; items.forEach(({ g }) => { const s = est(g).status; cnt[s] = (cnt[s] || 0) + 1; });
+  const total = items.length || 1;
+  const dist = `<div class="dist">${S.order.filter(s => cnt[s]).map(s => `<i style="width:${cnt[s] / total * 100}%;background:${COL[s]}" title="${esc(s)}: ${cnt[s]}"></i>`).join('')}</div>`;
+  const legend = `<div class="legend">${S.order.filter(s => cnt[s]).map(s => `<button class="chip${ui.only === s ? ' on' : ''}" data-s="${esc(s)}"><span class="dot" style="background:${COL[s]}"></span>${esc(cap1(s))} <b>${cnt[s]}</b></button>`).join('')}</div>`;
+  if (ui.only) items = items.filter(({ g }) => est(g).status === ui.only);
+
+  const sorters = {
+    name: nameCmp,
+    fps: (a, b) => (est(b.g).fps || 0) - (est(a.g).fps || 0) || nameCmp(a, b),
+    meta: (a, b) => (b.g.meta || 0) - (a.g.meta || 0) || nameCmp(a, b),
+    time: (a, b) => (b.g.playtimeH || 0) - (a.g.playtimeH || 0) || nameCmp(a, b),
+    status: (a, b) => S.order.indexOf(est(a.g).status) - S.order.indexOf(est(b.g).status) || (est(b.g).fps || 0) - (est(a.g).fps || 0) || nameCmp(a, b),
+  };
+  items.sort(sorters[ui.sort] || sorters.status);
+
+  const seg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-k="${key}" data-v="${v}" class="${ui[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const toolbar = `<div class="toolbar">
+    <div class="search">${ICON.search}<input id="q" placeholder="Spiel, Genre oder Entwickler suchen …" value="${esc(ui.q)}"></div>
+    ${(() => { const st = [...new Set(S.games.map(g => g.store))].sort((a, b) => S.games.filter(g => g.store === b).length - S.games.filter(g => g.store === a).length); return st.length <= 4 ? seg('store', [['', 'Alle'], ...st.map(s => [s, s])]) : `<select id="storeSel"><option value="">Alle Stores</option>${st.map(s => `<option value="${esc(s)}"${ui.store === s ? ' selected' : ''}>${esc(s)} (${S.games.filter(g => g.store === s).length})</option>`).join('')}</select>`; })()}
+    ${seg('inst', [['', 'Alle'], ['1', 'Installiert'], ['0', 'Nicht installiert']])}
+    <select id="sort">${[['status', 'Nach Spielbarkeit'], ['fps', 'Nach FPS'], ['name', 'Nach Name'], ['meta', 'Nach Metascore'], ['time', 'Nach Spielzeit']].map(([v, l]) => `<option value="${v}"${ui.sort === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
+    <div class="grow"></div>
+    ${seg('mode', [['grid', ICON.grid], ['list', ICON.list]])}
+  </div>`;
+
+  let content;
+  if (!items.length) content = `<div class="empty" style="margin-top:4vh"><h2>Keine Treffer</h2><p>Passe Suche oder Filter an.</p></div>`;
+  else if (ui.mode === 'list') content = listTable(items);
+  else if (ui.sort === 'status' && !ui.only) {
+    content = S.order.map(s => { const G = items.filter(({ g }) => est(g).status === s); return G.length ? `<section class="grp"><h2><span class="dot" style="background:${COL[s]}"></span>${esc(cap1(s))} <span class="n">${G.length}</span></h2><div class="grid">${G.map(card).join('')}</div></section>` : ''; }).join('');
+  } else content = `<div class="grid" style="margin-top:16px">${items.map(card).join('')}</div>`;
+
+  const hadFocus = document.activeElement && document.activeElement.id === 'q';
+  const pos = hadFocus ? document.activeElement.selectionStart : 0;
+  body.innerHTML = toolbar + dist + legend + content;
+  const q = $('q');
+  if (hadFocus) { q.focus(); q.setSelectionRange(pos, pos); }
+  q.oninput = () => { ui.q = q.value; renderLib(); };
+  $('sort').onchange = e => { ui.sort = e.target.value; saveUi(); renderLib(); };
+  const ss = $('storeSel'); if (ss) ss.onchange = e => { ui.store = e.target.value; saveUi(); renderLib(); };
+  body.querySelectorAll('.seg button').forEach(b => b.onclick = () => { ui[b.dataset.k] = b.dataset.v; saveUi(); renderLib(); });
+  body.querySelectorAll('.chip').forEach(b => b.onclick = () => { ui.only = ui.only === b.dataset.s ? null : b.dataset.s; renderLib(); });
+  bindGameClicks(body);
+}
+
+// Klicks auf Spiele (Details) und Herzen (Favorit) – für alle Ansichten
+function bindGameClicks(root) {
+  root.querySelectorAll('[data-fav]').forEach(h => h.onclick = e => { e.stopPropagation(); toggleFav(+h.dataset.fav); });
+  root.querySelectorAll('.card[data-i],.row[data-i],.frow[data-i]').forEach(b => b.onclick = e => { if (!e.target.closest('[data-fav],[data-act]')) openDetail(+b.dataset.i); });
+}
+
+async function toggleFav(i) {
+  const g = S.games[i]; if (!g) return;
+  try {
+    const r = await api('favorite', { key: g.key, on: !g.fav });
+    g.fav = r.fav;
+    toast(g.fav ? `„${g.name}“ zu Favoriten hinzugefügt` : `„${g.name}“ aus Favoriten entfernt`);
+    renderSide();
+    if (ui.view === 'lib') renderLib(); if (ui.view === 'fav') renderFav();
+    if ($('detail').classList.contains('on') && $('modal').dataset.i == i) openDetail(i, true);
+    if ($('random').classList.contains('on')) updateRandomFav();
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+// ---------------- Detail ----------------
+const metaColor = m => m >= 75 ? '#66cc33' : m >= 50 ? '#ffcc33' : '#ff4d4d';
+const canLaunch = g => (g.store === 'Steam' && g.ownId) || (g.store === 'Epic' && g.appName) || (g.store === 'GOG' && g.gogId) || (g.installed && g.launch);
+const ACTIVE_Q = ['wartet', 'prüft', 'lädt', 'pausiert', 'installiert gerade'];
+const inQueue = g => (S.queue || []).find(q => q.key === g.key && ACTIVE_Q.includes(q.status));
+const launchLabel = g => {
+  const q = inQueue(g);
+  if (q) return q.status === 'lädt' ? `Lädt … ${q.total ? Math.floor(q.done / q.total * 100) : 0} %` : 'In Warteschlange';
+  if (g.installed) return 'Spielen';
+  return g.store === 'GOG' ? 'Herunterladen & installieren' : g.store === 'Steam' ? 'Installieren' : 'Mit Epic installieren';
+};
+async function enqueueGames(list) {
+  try {
+    const r = await api('queue/add', { keys: list.map(g => g.key) });
+    S.queue = r.items; renderDlMini();
+    toast(r.added ? (r.added === 1 ? `„${list[0].name}“ zur Warteschlange hinzugefügt` : `${r.added} Spiele zur Warteschlange hinzugefügt`) : 'Bereits in der Warteschlange oder nicht installierbar.', r.added ? '' : 'warn');
+    if ($('detail').classList.contains('on') && $('modal').dataset.i) openDetail(+$('modal').dataset.i, true);
+    if (ui.view === 'fav') renderFav();
+  } catch (e) { toast(e.message, 'err'); }
+}
+const launch = g => {
+  if (inQueue(g)) return show('dl');
+  if (!g.installed && g.store === 'GOG') return enqueueGames([g]);
+  return api('launch', { key: g.key, store: g.store, ownId: g.ownId, appName: g.appName, gogId: g.gogId, installed: g.installed })
+    .then(r => toast(r.direct ? 'Spiel wird gestartet …' : 'Wird im Launcher geöffnet …')).catch(e => toast(e.message, 'err'));
+};
+const gameSize = g => g.sizeGb || (g.rec && g.rec.disk) || (g.min && g.min.disk) || null;
+
+function devRowsHtml(estList) {
+  return S.devices.map((d, k) => {
+    const e = estList[k] || { status: 'unbekannt', note: [] }, max = d.max_fps || 60;
+    const pct = e.fps ? Math.min(100, e.fps / max * 100) : 0;
+    return `<div class="drow"><div><b>${esc(d.name)}</b><div class="g">${esc(d.gpu || '')} · ${esc(d.aufloesung)}</div></div>
+      <div class="fbar" title="${esc(fpsText(e))} von max. ${max} FPS"><i style="width:${pct}%;background:${COL[e.status]}"></i><span class="m" style="left:${Math.min(100, 30 / max * 100)}%"></span><span class="m" style="left:${Math.min(100, 60 / max * 100)}%"></span></div>
+      <div class="r"><div class="big" style="color:${COL[e.status]}">${esc(fpsText(e) || '–')}</div><div class="s">${esc(cap1(e.status))}${e.preset ? ' · ' + esc(e.preset) : ''}</div></div>
+      ${e.note && e.note.length ? `<div class="notes">${esc(e.note.join(' · '))}</div>` : ''}</div>`;
+  }).join('');
+}
+const reqHtml = (title, r) => r ? `<div class="req"><b>${title}</b>${r.text ? `<div><span>Grafik:</span> ${esc(r.text)}</div>` : ''}${r.cpu ? `<div><span>Prozessor:</span> ${esc(r.cpu)}</div>` : ''}${r.ram ? `<div><span>RAM:</span> ${esc(r.ram)} GB</div>` : ''}${r.disk ? `<div><span>Speicher:</span> ${esc(r.disk)} GB</div>` : ''}${!r.text && !r.cpu && !r.ram ? '<div class="muted">Keine Angaben</div>' : ''}</div>` : '';
+
+function openDetail(i, keep) {
+  const g = S.games[i]; if (!g) return;
+  const hero = g.bg || g.img || '';
+  const devRows = devRowsHtml(g.est);
+  const req = reqHtml;
+  const pills = [g.deck ? `<span class="pill"><span>Steam Deck</span> ${esc(g.deck)}</span>` : '', g.proton ? `<span class="pill"><span>ProtonDB</span> ${esc(g.proton)}</span>` : '', g.controller ? `<span class="pill"><span>Controller</span> ${g.controller === 'full' ? 'voll unterstützt' : 'teilweise'}</span>` : '', g.playtimeH ? `<span class="pill"><span>Gespielt</span> ${esc(g.playtimeH)} h</span>` : '', g.sizeGb ? `<span class="pill"><span>Größe</span> ${esc(g.sizeGb)} GB</span>` : ''].join('');
+
+  $('modal').innerHTML = `<div class="hero"><div class="bgimg" style="--hero:url('${esc(hero)}')"></div>${g.img ? `<img class="hdr" src="${esc(g.img)}" alt="" onerror="this.remove()">` : ''}<button class="x" onclick="closeDetail()" title="Schließen (Esc)">${ICON.x}</button></div>
+  <div class="mb">
+    <div class="mt"><h2>${esc(g.name)}</h2><div class="acts">
+      ${canLaunch(g) ? `<button class="btn primary" id="launch">${g.installed ? ICON.play : ICON.down}${esc(launchLabel(g))}</button>` : ''}
+      <button class="btn fav${g.fav ? ' on' : ''}" id="favBtn" title="Favorit">${ICON.heart}${g.fav ? 'Favorit' : 'Merken'}</button>
+      ${g.url ? `<button class="btn" id="storeLink">${ICON.ext}Store-Seite</button>` : ''}</div></div>
+    <div class="meta"><span class="b-${sc(g.store)}" style="font-weight:700">${esc(g.store)}${g.installed ? ' · installiert' : ''}</span>${g.dev ? `<span>${esc(g.dev)}</span>` : ''}${g.release ? `<span>${esc(g.release)}</span>` : ''}${g.meta ? `<span><span class="metascore" style="background:${metaColor(g.meta)}">${g.meta}</span> Metascore</span>` : ''}</div>
+    ${g.genres && g.genres.length ? `<div class="tags">${g.genres.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}
+    <p class="desc">${esc(g.desc || 'Für dieses Spiel wurde keine Beschreibung gefunden.')}</p>
+    <h3>Auf deinen Geräten</h3><div class="drows">${devRows}</div>
+    ${pills ? `<h3>Infos</h3><div class="pills">${pills}</div>` : ''}
+    ${g.min || g.rec ? `<h3>Systemanforderungen</h3><div class="reqs">${req('Minimum', g.min)}${req('Empfohlen', g.rec)}</div>` : ''}
+    ${g.shots && g.shots.length ? `<h3>Screenshots</h3><div class="shots">${g.shots.map(s => `<img loading="lazy" src="${esc(s)}" alt="">`).join('')}</div>` : ''}
+  </div>`;
+  $('modal').dataset.i = i;
+  $('detail').classList.add('on');
+  if (!keep) $('detail').scrollTop = 0;
+  const L = $('launch'); if (L) L.onclick = () => launch(g);
+  $('favBtn').onclick = () => toggleFav(i);
+  const SL = $('storeLink'); if (SL) SL.onclick = () => api('open', { url: g.url }).catch(e => toast(e.message, 'err'));
+}
+window.closeDetail = () => $('detail').classList.remove('on');
+$('detail').onclick = e => { if (e.target.id === 'detail') closeDetail(); };
+$('random').onclick = e => { if (e.target.id === 'random') closeRandom(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('detail').classList.contains('on')) closeDetail(); else closeRandom(); } if (e.key === 'f' && e.ctrlKey && ui.view === 'lib') { e.preventDefault(); const q = $('q'); if (q) q.focus(); } });
+
+// ---------------- Favoriten ----------------
+const GOOD = ['läuft super', 'gut spielbar', 'spielbar'];
+function favRow({ g, i }) {
+  const size = gameSize(g);
+  return `<div class="frow" data-i="${i}"><img loading="lazy" src="${esc(g.img || '')}" onerror="this.style.visibility='hidden'" alt="">
+    <div><div class="t">${esc(g.name)}</div><div class="g"><span class="b-${sc(g.store)}" style="font-weight:700">${esc(g.store)}</span>${g.genres && g.genres.length ? ' · ' + esc(g.genres.slice(0, 3).join(' · ')) : ''}${size ? ` · ${esc(size)} GB` : ''}</div></div>
+    <div class="devs">${S.devices.map((d, k) => { const e = g.est[k]; return `<div class="cell" title="${esc(d.name)}: ${esc(e.status)}"><span class="dot" style="background:${COL[e.status]}"></span><div><small>${esc(d.name)}</small><br><b>${esc(fpsText(e) || cap1(e.status))}</b></div></div>`; }).join('')}</div>
+    <div class="acts">${canLaunch(g) ? `<button class="btn primary" data-act="launch" data-li="${i}">${g.installed ? ICON.play : ICON.down}${esc(launchLabel(g))}</button>` : ''}<button class="btn ghost" data-fav="${i}" title="Aus Favoriten entfernen">${ICON.x}</button></div></div>`;
+}
+function renderFav() {
+  if (!S) return;
+  const dev = S.devices[ui.dev];
+  const favs = S.games.map((g, i) => ({ g, i })).filter(x => x.g.fav).sort((a, b) => String(b.g.fav).localeCompare(String(a.g.fav)));
+  if (!favs.length) {
+    $('favBody').innerHTML = `<div class="empty"><div style="font-size:54px;line-height:1;margin-bottom:12px;color:#ff5c8a">♥</div><h2>Noch keine Favoriten</h2><p>Klicke in der Bibliothek auf das Herz bei einem Spiel, um es dir für später zu merken – zum Beispiel alles, was du als Nächstes installieren willst.</p><div class="row"><button class="btn primary" onclick="show('lib')">Zur Bibliothek</button><button class="btn" onclick="openRandom()">${ICON.dice}Überrasch mich</button></div></div>`;
+    return;
+  }
+  const todo = favs.filter(x => !x.g.installed), done = favs.filter(x => x.g.installed);
+  const size = todo.reduce((a, x) => a + (gameSize(x.g) || 0), 0);
+  const unknownSize = todo.filter(x => !gameSize(x.g)).length;
+  const good = favs.filter(x => GOOD.includes(est(x.g).status)).length;
+  $('favBody').innerHTML = `<div class="stats">
+      <div class="stat"><b>${favs.length}</b><span>Favoriten</span></div>
+      <div class="stat"><b>${todo.length}</b><span>noch zu installieren</span></div>
+      <div class="stat"><b>${size ? '~' + Math.round(size) + ' GB' : '–'}</b><span>Speicherbedarf${unknownSize ? ` (${unknownSize} ohne Angabe)` : ''}</span></div>
+      <div class="stat"><b style="color:var(--s1)">${good}</b><span>laufen gut auf ${esc(dev ? dev.name : '')}</span></div></div>
+    ${todo.length ? `<div class="dealhead"><h2>Zu installieren</h2><span class="muted">${todo.length}</span><div class="grow"></div>${todo.some(x => canLaunch(x.g) && !inQueue(x.g)) ? `<button class="btn primary" id="favAll">${ICON.down}Alle installieren</button>` : ''}</div>
+      <div class="muted small" style="margin:-4px 0 12px">GOG-Spiele lädt und installiert die App selbst, Steam- und Epic-Spiele werden nacheinander an den Launcher übergeben.</div>${todo.map(favRow).join('')}` : ''}
+    ${done.length ? `<div class="dealhead"><h2>Bereits installiert</h2><span class="muted">${done.length}</span></div>${done.map(favRow).join('')}` : ''}`;
+  bindGameClicks($('favBody'));
+  $('favBody').querySelectorAll('[data-act=launch]').forEach(b => b.onclick = e => { e.stopPropagation(); launch(S.games[+b.dataset.li]); });
+  const all = $('favAll'); if (all) all.onclick = () => enqueueGames(todo.map(x => x.g).filter(g => canLaunch(g) && !inQueue(g)));
+}
+
+// ---------------- Downloads ----------------
+const fmtBytes = b => !b ? '0 MB' : b >= 1024 ** 3 ? (b / 1024 ** 3).toFixed(2).replace('.', ',') + ' GB' : Math.round(b / 1024 ** 2) + ' MB';
+const fmtEta = s => s < 60 ? `${Math.max(1, Math.round(s))} s` : s < 3600 ? `${Math.round(s / 60)} min` : `${Math.floor(s / 3600)} h ${Math.round(s % 3600 / 60)} min`;
+const qStatus = q => ({ wartet: 'Wartet', prüft: 'Wird vorbereitet …', lädt: 'Lädt herunter', pausiert: 'Pausiert', 'installiert gerade': 'Wird installiert …', installiert: 'Installiert ✓', heruntergeladen: 'Heruntergeladen', abgebrochen: 'Abgebrochen', fehler: 'Fehler' }[q.status] || q.status);
+const qPct = q => q.total ? Math.min(100, q.done / q.total * 100) : 0;
+function renderDlMini() {
+  if (!S) return;
+  const Q = S.queue || [];
+  const act = Q.filter(q => ACTIVE_Q.includes(q.status));
+  $('dlCount').textContent = act.length || '';
+  const cur = Q.find(q => ['lädt', 'prüft', 'installiert gerade'].includes(q.status));
+  const el = $('dlMini');
+  if (!cur) { el.classList.remove('on'); return; }
+  el.classList.add('on');
+  el.innerHTML = `<b>${cur.status === 'installiert gerade' ? 'Installiere' : 'Lade'}: ${esc(cur.name)}</b><div class="pbar"><i style="width:${cur.status === 'installiert gerade' ? 100 : qPct(cur)}%"></i></div><div class="muted" style="margin-top:5px">${cur.status === 'lädt' ? `${Math.floor(qPct(cur))} % · ${fmtBytes(cur.speed)}/s` : esc(qStatus(cur))}${act.length > 1 ? ` · noch ${act.length - 1} in Warteschlange` : ''}</div>`;
+}
+let lastQNotice = {};
+function notifyQueue() {
+  for (const q of S.queue || []) {
+    if (lastQNotice[q.id] === q.status) continue;
+    if (lastQNotice[q.id] !== undefined) {
+      if (q.status === 'installiert') toast(`„${q.name}“ wurde installiert 🎉`);
+      else if (q.status === 'fehler') toast(`„${q.name}“: ${q.error || 'Fehler'}`, 'err');
+      else if (/übergeben/.test(q.status)) toast(`„${q.name}“ an ${q.store} übergeben – bitte dort bestätigen.`);
+    }
+    lastQNotice[q.id] = q.status;
+  }
+}
+const qAct = (id, action) => api('queue/action', { id, action }).then(r => { S.queue = r.items; renderDl(); renderDlMini(); }).catch(e => toast(e.message, 'err'));
+window.qAct = qAct;
+function dlButtons(q) {
+  const b = (a, l, cls = '') => `<button class="btn ${cls}" onclick="qAct('${q.id}','${a}')">${l}</button>`;
+  if (q.status === 'lädt' || q.status === 'prüft') return b('pause', 'Pausieren') + b('cancel', 'Abbrechen', 'ghost danger');
+  if (q.status === 'wartet') return b('top', 'Als Nächstes') + b('pause', 'Zurückstellen') + b('remove', ICON.x, 'ghost');
+  if (q.status === 'pausiert') return b('resume', 'Fortsetzen', 'primary') + b('cancel', 'Abbrechen', 'ghost danger');
+  if (q.status === 'fehler') return b('retry', 'Erneut versuchen', 'primary') + b('remove', ICON.x, 'ghost');
+  if (q.status === 'installiert gerade') return '';
+  return b('remove', ICON.x, 'ghost');
+}
+function renderDl() {
+  if (!S) return;
+  const Q = S.queue || [];
+  const cur = Q.find(q => ['lädt', 'prüft', 'installiert gerade'].includes(q.status));
+  const waiting = Q.filter(q => q !== cur && ['wartet', 'pausiert', 'fehler'].includes(q.status));
+  const done = Q.filter(q => !ACTIVE_Q.includes(q.status) && q.status !== 'fehler');
+  const set = S.dl.settings, free = S.dl.free || {};
+  const sizeInfo = q => q.total ? `${fmtBytes(q.done)} von ${fmtBytes(q.total)}` : '';
+  const row = q => `<div class="dlrow"><img src="${esc(q.img || '')}" onerror="this.style.visibility='hidden'" alt=""><div><div class="t">${esc(q.name)}</div>
+      <div class="s"><span class="b-${sc(q.store)}" style="font-weight:700">${esc(q.store)}</span> · <span class="${q.status === 'fehler' ? 'st-fehler' : q.status === 'installiert' ? 'st-ok' : ''}">${esc(qStatus(q))}</span>${q.error ? ' – ' + esc(q.error) : ''}${q.status === 'pausiert' && q.total ? ' · ' + sizeInfo(q) : ''}${q.installDir ? ' · ' + esc(q.installDir) : ''}</div>
+      ${q.status === 'pausiert' && q.total ? `<div class="pbar" style="margin-top:6px;max-width:360px"><i style="width:${qPct(q)}%"></i></div>` : ''}</div>
+      <div class="acts">${dlButtons(q)}</div></div>`;
+  $('dlBody').innerHTML = `
+    ${cur ? `<div class="dlact"><img src="${esc(cur.img || '')}" onerror="this.style.visibility='hidden'" alt=""><div>
+        <h3>${esc(cur.name)}</h3><div class="muted small">${esc(qStatus(cur))}${cur.lang ? ' · Sprache: ' + esc(cur.lang) : ''}${cur.files && cur.files.length > 1 ? ` · ${cur.files.length} Dateien` : ''}</div>
+        <div class="nums"><span><b>${cur.status === 'installiert gerade' ? 100 : Math.floor(qPct(cur))} %</b></span>${cur.total ? `<span>${sizeInfo(cur)}</span>` : ''}${cur.status === 'lädt' && cur.speed ? `<span><b>${fmtBytes(cur.speed)}/s</b></span><span>noch ca. ${fmtEta((cur.total - cur.done) / cur.speed)}</span>` : ''}</div>
+        <div class="pbar big"><i style="width:${cur.status === 'installiert gerade' ? 100 : qPct(cur)}%"></i></div>
+        ${cur.status === 'installiert gerade' ? '<div class="muted small" style="margin-top:8px">Falls Windows nach Administratorrechten fragt, bitte bestätigen.</div>' : ''}
+        <div class="acts" style="margin-top:12px">${dlButtons(cur)}</div></div></div>`
+      : `<div class="note">${Q.length ? 'Gerade wird nichts heruntergeladen.' : 'Noch keine Downloads. Öffne ein GOG-Spiel und klicke auf „Herunterladen & installieren“ – oder nutze „Alle installieren“ bei deinen Favoriten.'}</div>`}
+    ${waiting.length ? `<div class="dealhead"><h2>Warteschlange</h2><span class="muted">${waiting.length}</span></div>${waiting.map(row).join('')}` : ''}
+    ${done.length ? `<div class="dealhead"><h2>Abgeschlossen</h2><span class="muted">${done.length}</span><div class="grow"></div><button class="btn ghost" id="qClear">Liste leeren</button></div>${done.map(row).join('')}` : ''}
+    <div class="dealhead"><h2>Einstellungen für GOG-Downloads</h2></div>
+    <div class="box"><div class="form">
+      <label class="full">Installationsordner${free.install != null ? ` <span>(frei: ${fmtBytes(free.install)})</span>` : ''}<div class="pathrow"><input id="dlInst" value="${esc(set.install_dir)}"><button class="btn" data-pick="dlInst">Ordner wählen …</button></div></label>
+      <label class="full">Download-Ordner für Installer${free.download != null ? ` <span>(frei: ${fmtBytes(free.download)})</span>` : ''}<div class="pathrow"><input id="dlDir" value="${esc(set.download_dir)}"><button class="btn" data-pick="dlDir">Ordner wählen …</button></div></label>
+      <label class="chk full"><input type="checkbox" id="dlAuto"${set.auto_install ? ' checked' : ''}> Nach dem Download automatisch installieren</label>
+      <label class="chk full"><input type="checkbox" id="dlDel"${set.delete_installer ? ' checked' : ''}> Installer nach erfolgreicher Installation löschen</label>
+    </div><div class="boxfoot"><span class="hint">Downloads laufen im Hintergrund weiter, auch wenn du das Fenster schließt.</span><button class="btn primary" id="dlSave">Speichern</button></div></div>`;
+  const c = $('qClear'); if (c) c.onclick = () => api('queue/clear', {}).then(r => { S.queue = r.items; renderDl(); });
+  $('dlBody').querySelectorAll('[data-pick]').forEach(b => b.onclick = async () => {
+    const inp = $(b.dataset.pick); b.disabled = true;
+    try { const r = await api('pickfolder', { title: 'Ordner wählen', start: inp.value }); if (r.path) inp.value = r.path; } catch (e) { toast(e.message, 'err'); }
+    b.disabled = false;
+  });
+  $('dlSave').onclick = async () => {
+    try { const r = await api('downloads/settings', { install_dir: $('dlInst').value, download_dir: $('dlDir').value, auto_install: $('dlAuto').checked, delete_installer: $('dlDel').checked }); S.dl = r; toast('Download-Einstellungen gespeichert.'); renderDl(); }
+    catch (e) { toast(e.message, 'err'); }
+  };
+}
+
+// ---------------- Angebote ----------------
+let D = null, dealsBusy = false;
+const dui = { q: '', store: '', own: '', min: 0, max: 0, sort: 'discount' };
+const fmtAgo = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'gerade eben' : m < 60 ? `vor ${m} min` : `vor ${Math.round(m / 60)} h`; };
+async function loadDeals(refresh) {
+  if (dealsBusy) return; dealsBusy = true;
+  if (!D || refresh) $('dealBody').innerHTML = `<div class="loading"><svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg>Lade aktuelle Angebote von Steam, Epic und GOG …</div>`;
+  try { D = await api('deals', { refresh: !!refresh }); } catch (e) { toast('Angebote konnten nicht geladen werden: ' + e.message, 'err'); }
+  dealsBusy = false; renderDeals();
+}
+$('dealRefresh').onclick = () => loadDeals(true);
+const fmtDate = s => new Date(s).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+function dealCard(d, idx) {
+  return `<button class="deal" data-d="${idx}"><div class="im"><img loading="lazy" src="${esc(d.img || d.thumb || '')}" onerror="if(this.dataset.f){this.style.visibility='hidden'}else{this.dataset.f=1;this.src='${esc(d.thumb || '')}'}" alt="">
+    <span class="badge b-${sc(d.store)}">${esc(d.store.toUpperCase())}</span>
+    ${d.owned ? `<span class="owned">✓ Besitzt du${d.ownedOn && d.ownedOn.length ? ' (' + esc(d.ownedOn.join(', ')) + ')' : ''}</span>` : ''}
+    <span class="disc">-${d.discount}%</span></div>
+    <div class="bd"><div class="t">${esc(d.title)}</div>
+    <div class="pr">${d.origText ? `<s>${esc(d.origText)}</s>` : ''}<b>${esc(d.priceText || '')}</b>${d.rating ? `<span class="rt">👍 ${d.rating} %</span>` : ''}</div></div></button>`;
+}
+function renderDeals() {
+  if (!D) { loadDeals(false); return; }
+  const all = D.deals || [];
+  $('dealSub').textContent = `${all.length} Angebote von Steam, Epic Games und GOG · aktualisiert ${fmtAgo(D.at)}`;
+  const free = all.filter(d => d.free);
+  const q = dui.q.toLowerCase();
+  let L = all.map((d, i) => ({ d, i })).filter(({ d }) => !d.free &&
+    (!dui.store || d.store === dui.store) && (!dui.own || (dui.own === 'no' ? !d.owned : d.owned)) &&
+    d.discount >= dui.min && (!dui.max || (d.price != null && d.price <= dui.max)) &&
+    (!q || (d.title + ' ' + (d.genres || []).join(' ')).toLowerCase().includes(q)));
+  const S2 = { discount: (a, b) => b.d.discount - a.d.discount, price: (a, b) => (a.d.price ?? 999) - (b.d.price ?? 999), rating: (a, b) => (b.d.rating || 0) - (a.d.rating || 0), name: (a, b) => a.d.title.localeCompare(b.d.title, 'de') };
+  L.sort(S2[dui.sort]);
+  const seg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-dk="${key}" data-v="${v}" class="${String(dui[key]) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const sel = (key, opts) => `<select data-dk="${key}">${opts.map(([v, l]) => `<option value="${v}"${String(dui[key]) === String(v) ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
+  const hadFocus = document.activeElement && document.activeElement.id === 'dq';
+  $('dealBody').innerHTML = `
+    ${free.length ? `<div class="dealhead"><h2>🎁 Gratis bei Epic Games</h2></div><div class="freerow">${free.map(d => `<button class="free" data-d="${all.indexOf(d)}"><div class="im" style="--img:url('${esc(d.img || '')}')"></div><div class="tx"><span class="flag${d.free === 'bald' ? ' soon' : ''}">${d.free === 'jetzt' ? 'JETZT GRATIS' : 'AB ' + esc(fmtDate(d.start).toUpperCase())}</span>${d.owned ? ' <span class="flag" style="background:#0b0d12d8;color:var(--s1)">✓ Besitzt du</span>' : ''}<b>${esc(d.title)}</b><span>${d.free === 'jetzt' ? 'Kostenlos bis ' + esc(fmtDate(d.end)) : 'Gratis vom ' + esc(fmtDate(d.start)) + ' bis ' + esc(fmtDate(d.end))}${d.origText ? ' · sonst ' + esc(d.origText) : ''}</span></div></button>`).join('')}</div>` : ''}
+    <div class="toolbar" style="margin-top:14px">
+      <div class="search">${ICON.search}<input id="dq" placeholder="Angebot suchen …" value="${esc(dui.q)}"></div>
+      ${seg('store', [['', 'Alle'], ['Steam', 'Steam'], ['Epic', 'Epic'], ['GOG', 'GOG']])}
+      ${seg('own', [['', 'Alle'], ['no', 'Nicht in Bibliothek']])}
+      ${sel('min', [[0, 'Jeder Rabatt'], [50, 'ab -50 %'], [75, 'ab -75 %'], [90, 'ab -90 %']])}
+      ${sel('max', [[0, 'Jeder Preis'], [5, 'bis 5 €'], [10, 'bis 10 €'], [20, 'bis 20 €']])}
+      ${sel('sort', [['discount', 'Höchster Rabatt'], ['price', 'Günstigste zuerst'], ['rating', 'Beste Bewertung'], ['name', 'Name']])}
+    </div>
+    <div class="muted small" style="margin:0 0 12px">${L.length} Angebote${dui.store !== 'GOG' && dui.store !== 'Steam' ? ' · Epic-Preise in US-Dollar (Quelle: CheapShark)' : ''}</div>
+    ${L.length ? `<div class="dgrid">${L.map(({ d, i }) => dealCard(d, i)).join('')}</div>` : '<div class="empty" style="margin-top:4vh"><h2>Keine Treffer</h2><p>Passe die Filter an.</p></div>'}`;
+  const dq = $('dq');
+  if (hadFocus) { dq.focus(); dq.setSelectionRange(dq.value.length, dq.value.length); }
+  dq.oninput = () => { dui.q = dq.value; renderDeals(); };
+  $('dealBody').querySelectorAll('.seg [data-dk]').forEach(b => b.onclick = () => { dui[b.dataset.dk] = b.dataset.v; renderDeals(); });
+  $('dealBody').querySelectorAll('select[data-dk]').forEach(s => s.onchange = () => { const k = s.dataset.dk; dui[k] = k === 'sort' ? s.value : +s.value; renderDeals(); });
+  $('dealBody').querySelectorAll('[data-d]').forEach(b => b.onclick = () => openDeal(all[+b.dataset.d]));
+}
+async function openDeal(d) {
+  $('modal').dataset.i = '';
+  $('modal').innerHTML = `<div class="hero"><div class="bgimg" style="--hero:url('${esc(d.img || '')}')"></div>${d.img ? `<img class="hdr" src="${esc(d.img)}" alt="" onerror="this.remove()">` : ''}<button class="x" onclick="closeDetail()" title="Schließen (Esc)">${ICON.x}</button></div>
+    <div class="mb"><div class="mt"><h2>${esc(d.title)}</h2><div class="acts"><button class="btn primary" id="toDeal">${ICON.ext}Zum Angebot</button></div></div>
+    <div class="meta"><span class="b-${sc(d.store)}" style="font-weight:700">${esc(d.store)}</span>
+      <span><span class="disc" style="position:static;font-size:12px">-${d.discount}%</span></span>
+      ${d.origText ? `<span><s>${esc(d.origText)}</s></span>` : ''}<span style="color:var(--fg);font-weight:700;font-size:16px">${esc(d.priceText || '')}</span>
+      ${d.free ? `<span>${d.free === 'jetzt' ? 'Gratis bis ' + esc(fmtDate(d.end)) : 'Gratis ab ' + esc(fmtDate(d.start))}</span>` : ''}
+      ${d.rating ? `<span>👍 ${d.rating} % positiv</span>` : ''}${d.owned ? `<span style="color:var(--s1)">✓ Besitzt du bereits${d.ownedOn && d.ownedOn.length ? ' auf ' + esc(d.ownedOn.join(', ')) : ''}</span>` : ''}</div>
+    ${d.genres && d.genres.length ? `<div class="tags">${d.genres.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}
+    <div id="dealInfo"><div class="loading"><svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg>Prüfe, wie gut das Spiel auf deinen Geräten läuft …</div></div></div>`;
+  $('detail').classList.add('on'); $('detail').scrollTop = 0;
+  $('toDeal').onclick = () => api('open', { url: d.url }).catch(e => toast(e.message, 'err'));
+  try {
+    const info = await api('dealinfo', { title: d.title, steamId: d.steamId, gogId: d.gogId });
+    if (!$('detail').classList.contains('on') || !$('dealInfo')) return;
+    $('dealInfo').innerHTML = `<p class="desc">${esc(info.desc || d.desc || 'Keine Beschreibung gefunden.')}</p>
+      ${!d.genres && info.genres && info.genres.length ? `<div class="tags">${info.genres.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}
+      <h3>Läuft es auf deinen Geräten?</h3><div class="drows">${devRowsHtml(info.est || [])}</div>
+      ${info.min || info.rec ? `<h3>Systemanforderungen</h3><div class="reqs">${reqHtml('Minimum', info.min)}${reqHtml('Empfohlen', info.rec)}</div>` : ''}`;
+  } catch (e) { if ($('dealInfo')) $('dealInfo').innerHTML = `<p class="desc">${esc(d.desc || '')}</p><p class="muted">Spielinfos konnten nicht geladen werden (${esc(e.message)}).</p>`; }
+}
+
+// ---------------- Zufallsspiel ----------------
+const rnd = { playable: true, inst: '', genre: '', favOnly: false, cur: null, timer: null };
+try { Object.assign(rnd, JSON.parse(localStorage.getItem('rnd') || '{}'), { cur: null, timer: null }); } catch {}
+const rndCandidates = () => S.games.map((g, i) => ({ g, i })).filter(({ g }) =>
+  (!rnd.playable || GOOD.includes(est(g).status)) &&
+  (!rnd.inst || (rnd.inst === '1') === !!g.installed) &&
+  (!rnd.genre || (g.genres || []).includes(rnd.genre)) &&
+  (!rnd.favOnly || g.fav));
+window.openRandom = () => {
+  if (!S || !S.games.length) return toast('Erst die Bibliothek einlesen.', 'warn');
+  const genres = [...new Set(S.games.flatMap(g => g.genres || []))].sort((a, b) => a.localeCompare(b, 'de'));
+  const dev = S.devices[ui.dev];
+  $('rmodal').innerHTML = `<div class="rhead">${ICON.dice.replace('<svg', '<svg width="24" height="24" style="color:var(--accent)"')}<h3>Überrasch mich!</h3><button class="x" onclick="closeRandom()" title="Schließen (Esc)">${ICON.x}</button></div>
+    <div class="opts">
+      <label><input type="checkbox" id="rPlay"${rnd.playable ? ' checked' : ''}> Läuft gut auf ${esc(dev ? dev.name : 'diesem Gerät')}</label>
+      <div class="seg">${[['', 'Egal'], ['1', 'Installiert'], ['0', 'Nicht installiert']].map(([v, l]) => `<button data-ri="${v}" class="${rnd.inst === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <select id="rGenre"><option value="">Alle Genres</option>${genres.map(x => `<option${rnd.genre === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
+      <label><input type="checkbox" id="rFav"${rnd.favOnly ? ' checked' : ''}> Nur Favoriten</label>
+      <span class="muted small" id="rCount"></span>
+    </div>
+    <div class="rnd"><div class="cv" id="rCover"></div><div id="rInfo"></div></div>`;
+  $('random').classList.add('on');
+  const opt = () => { try { localStorage.setItem('rnd', JSON.stringify({ playable: rnd.playable, inst: rnd.inst, genre: rnd.genre, favOnly: rnd.favOnly })); } catch {} roll(); };
+  $('rPlay').onchange = e => { rnd.playable = e.target.checked; opt(); };
+  $('rFav').onchange = e => { rnd.favOnly = e.target.checked; opt(); };
+  $('rGenre').onchange = e => { rnd.genre = e.target.value; opt(); };
+  $('rmodal').querySelectorAll('[data-ri]').forEach(b => b.onclick = () => { rnd.inst = b.dataset.ri; $('rmodal').querySelectorAll('[data-ri]').forEach(x => x.classList.toggle('on', x === b)); opt(); });
+  roll();
+};
+window.closeRandom = () => { clearTimeout(rnd.timer); $('random').classList.remove('on'); };
+const coverOf = g => g.tall || (g.steamId ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${g.steamId}/library_600x900.jpg` : g.img || '');
+function roll() {
+  clearTimeout(rnd.timer);
+  const C = rndCandidates();
+  $('rCount').textContent = `${C.length} passende Spiele`;
+  const cv = $('rCover');
+  if (!C.length) {
+    cv.style.backgroundImage = ''; cv.className = 'cv';
+    $('rInfo').innerHTML = `<h2>Nichts gefunden</h2><p class="muted">Kein Spiel passt zu diesen Filtern. Lockere die Auswahl oben etwas.</p>`;
+    return;
+  }
+  const pick = C[Math.floor(Math.random() * C.length)];
+  // Kurze "Glücksrad"-Animation durch zufällige Cover, die immer langsamer wird
+  let step = 0; const steps = C.length > 1 ? 14 : 0;
+  cv.className = 'cv spin';
+  $('rInfo').innerHTML = `<h2 class="muted">Würfle …</h2>`;
+  const tick = () => {
+    if (step >= steps) { cv.className = 'cv land'; cv.style.backgroundImage = `url("${coverOf(pick.g)}")`; rnd.cur = pick.i; showRandom(pick.i); return; }
+    const r = C[Math.floor(Math.random() * C.length)].g;
+    cv.style.backgroundImage = `url("${coverOf(r)}")`;
+    $('rInfo').firstElementChild.textContent = r.name;
+    step++; rnd.timer = setTimeout(tick, 40 + step * step * 1.5);
+  };
+  tick();
+}
+function showRandom(i) {
+  const g = S.games[i], e = est(g), dev = S.devices[ui.dev];
+  $('rInfo').innerHTML = `<div class="meta" style="margin:0 0 6px"><span class="b-${sc(g.store)}" style="font-weight:700">${esc(g.store)}${g.installed ? ' · installiert' : ''}</span>${g.release ? `<span>${esc(g.release)}</span>` : ''}${g.playtimeH ? `<span>${esc(g.playtimeH)} h gespielt</span>` : ''}</div>
+    <h2>${esc(g.name)}</h2>
+    ${g.genres && g.genres.length ? `<div class="tags">${g.genres.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}
+    <p class="desc" style="font-size:14px;margin-bottom:14px">${esc(g.desc || 'Keine Beschreibung gefunden.')}</p>
+    <div class="pill"><span class="dot" style="background:${COL[e.status]}"></span><span>${esc(dev ? dev.name : '')}:</span> <b>${esc(fpsText(e) || cap1(e.status))}</b>${e.preset ? ` <span>(${esc(e.preset)})</span>` : ''}</div>
+    <div class="acts">
+      ${canLaunch(g) ? `<button class="btn primary" id="rLaunch">${g.installed ? ICON.play + 'Spielen' : ICON.down + launchLabel(g)}</button>` : ''}
+      <button class="btn" id="rAgain">${ICON.dice}Nochmal</button>
+      <button class="btn fav${g.fav ? ' on' : ''}" id="rFavBtn">${ICON.heart}${g.fav ? 'Favorit' : 'Merken'}</button>
+      <button class="btn ghost" id="rDetail">${ICON.info}Details</button>
+    </div>`;
+  const L = $('rLaunch'); if (L) L.onclick = () => launch(g);
+  $('rAgain').onclick = roll;
+  $('rFavBtn').onclick = () => toggleFav(i);
+  $('rDetail').onclick = () => openDetail(i);
+}
+function updateRandomFav() { if (rnd.cur != null && $('rFavBtn')) showRandom(rnd.cur); }
+
+// ---------------- Einlesen ----------------
+window.scan = async (refresh = false) => {
+  try { await api('scan', { refresh }); showProgress({ text: 'Starte …', done: 0, total: 0 }); } catch (e) { toast(e.message, 'err'); }
+};
+$('scanBtn').onclick = e => scan(e.shiftKey);
+$('scanBtn').title = 'Shift+Klick: alle Spielinfos neu laden';
+function showProgress(p) {
+  $('progress').classList.add('on');
+  $('scanBtn').disabled = true;
+  $('progTxt').textContent = p.text || '';
+  const bar = $('progBar');
+  if (p.total) { bar.classList.remove('ind'); bar.firstElementChild.style.width = (p.done / p.total * 100) + '%'; $('progNum').textContent = `${p.done} / ${p.total}`; }
+  else { bar.classList.add('ind'); bar.firstElementChild.style.width = ''; $('progNum').textContent = ''; }
+}
+function hideProgress() { $('progress').classList.remove('on'); $('scanBtn').disabled = false; }
+
+// ---------------- Geräte ----------------
+let devDraft = null, devDirty = false;
+const PRESETS = {
+  deck: { name: 'Steam Deck', gpu: 'Steam Deck', ram_gb: 16, aufloesung: '800p', max_fps: 60, os: 'linux', steam_deck: true },
+  ally: { name: 'ROG Ally', gpu: 'ROG Ally', ram_gb: 16, aufloesung: '1080p', max_fps: 120, os: 'windows' },
+  pc: { name: 'Gaming-PC', gpu: 'RTX 4060', ram_gb: 16, aufloesung: '1080p', max_fps: 144, os: 'windows' },
+  laptop: { name: 'Laptop', gpu: 'RTX 3050 Laptop', ram_gb: 16, aufloesung: '1080p', max_fps: 60, os: 'windows' },
+};
+const opt = (v, cur, l) => `<option value="${v}"${String(cur) === String(v) ? ' selected' : ''}>${l || v}</option>`;
+function setDirty(v) { devDirty = v; $('devDirty').textContent = v ? 'Ungespeicherte Änderungen' : ''; }
+function renderDevices() {
+  if (!S) return;
+  if (!devDraft || !devDirty) devDraft = JSON.parse(JSON.stringify(S.devicesRaw || []));
+  $('gpus').innerHTML = S.gpuList.map(g => `<option value="${esc(g)}">`).join('');
+  $('devCards').innerHTML = devDraft.map((d, i) => `<div class="box" data-i="${i}">
+    <h3>${esc(d.name || 'Gerät')}${d.auto ? '<span class="state ok">dieser PC</span>' : ''}</h3>
+    <div class="sub">${d.auto ? `Automatisch erkannt: ${esc(S.pc.gpu)} · ${esc(S.pc.ram)} GB RAM${S.pc.cpu ? ' · ' + esc(S.pc.cpu) : ''}` : 'Eigenes Gerät'}</div>
+    <div class="form">
+      <label class="full">Name<input data-f="name" value="${esc(d.name || '')}"></label>
+      <label class="full">Grafikkarte<input data-f="gpu" list="gpus" value="${esc(d.gpu || '')}" placeholder="${d.auto ? 'automatisch: ' + esc(S.pc.gpu) : 'z. B. RTX 3060, RX 6700 XT, Steam Deck'}"><span class="gpuok" data-ok></span></label>
+      <label>Arbeitsspeicher (GB)<input data-f="ram_gb" type="number" min="1" max="512" value="${esc(d.ram_gb || '')}" placeholder="${d.auto ? esc(S.pc.ram) : '16'}"></label>
+      <label>Auflösung<select data-f="aufloesung">${['720p', '800p', '1080p', '1200p', '1440p', 'ultrawide', '4k'].map(r => opt(r, d.aufloesung || '1080p', r === 'ultrawide' ? 'Ultrawide' : r === '4k' ? '4K' : r)).join('')}</select></label>
+      <label>Bildwiederholrate<select data-f="max_fps">${[30, 60, 75, 90, 120, 144, 165, 240].map(r => opt(r, d.max_fps || 60, r + ' Hz')).join('')}</select></label>
+      <label>System<select data-f="os">${opt('windows', d.os || 'windows', 'Windows')}${opt('linux', d.os, 'Linux / SteamOS')}${opt('mac', d.os, 'macOS')}</select></label>
+      <label class="chk full"><input type="checkbox" data-f="steam_deck"${d.steam_deck ? ' checked' : ''}> Ist ein Steam Deck (Valves Deck-Bewertung nutzen)</label>
+    </div>
+    <div class="boxfoot"><span></span><button class="btn ghost danger" data-del>${ICON.trash}Entfernen</button></div>
+  </div>`).join('');
+  document.querySelectorAll('#devCards .box').forEach(box => {
+    const i = +box.dataset.i;
+    const check = () => {
+      const v = box.querySelector('[data-f=gpu]').value || (devDraft[i].auto ? S.pc.gpu : '');
+      const ok = box.querySelector('[data-ok]');
+      if (!v) { ok.innerHTML = ''; return; }
+      api('gpucheck', { name: v }).then(r => { ok.innerHTML = r.score ? `<span style="color:var(--s1)">✓ erkannt: ${esc(r.names.join(', '))}</span>` : `<span style="color:var(--s4)">⚠ nicht erkannt – FPS können nicht geschätzt werden</span>`; });
+    };
+    let t; check();
+    box.querySelectorAll('[data-f]').forEach(inp => inp.oninput = inp.onchange = () => {
+      const f = inp.dataset.f;
+      devDraft[i][f] = inp.type === 'checkbox' ? inp.checked : inp.type === 'number' ? (inp.value ? +inp.value : undefined) : inp.value;
+      if (f === 'name') box.querySelector('h3').firstChild.textContent = inp.value || 'Gerät';
+      if (f === 'gpu') { clearTimeout(t); t = setTimeout(check, 300); }
+      setDirty(true);
+    });
+    box.querySelector('[data-del]').onclick = () => { if (devDraft.length <= 1) return toast('Mindestens ein Gerät wird benötigt.', 'warn'); devDraft.splice(i, 1); setDirty(true); renderDevices(); };
+  });
+}
+$('addDev').onclick = () => { devDraft.push({ ...PRESETS.pc, name: 'Neues Gerät' }); setDirty(true); renderDevices(); $('devCards').lastElementChild.scrollIntoView({ behavior: 'smooth' }); };
+$('addPreset').onchange = e => { const p = PRESETS[e.target.value]; e.target.value = ''; if (!p) return; devDraft.push({ ...p }); setDirty(true); renderDevices(); $('devCards').lastElementChild.scrollIntoView({ behavior: 'smooth' }); };
+$('saveDev').onclick = async () => {
+  try { S = await api('devices', { geraete: devDraft }); setDirty(false); devDraft = null; if (ui.dev >= S.devices.length) ui.dev = 0; renderSide(); renderDevices(); renderLib(); toast('Geräte gespeichert – Bewertungen aktualisiert.'); }
+  catch (e) { toast(e.message, 'err'); }
+};
+
+// ---------------- Konten ----------------
+function renderAccounts() {
+  if (!S) return;
+  const A = S.accounts;
+  const st = c => `<span class="state ${c ? 'ok' : 'no'}">${c ? 'Verbunden' : 'Nicht verbunden'}</span>`;
+  const disc = (k, c) => c ? `<div class="boxfoot"><span class="hint">Neu verbinden: Schritte einfach erneut ausführen.</span><button class="btn ghost danger" data-disc="${k}">Trennen</button></div>` : '';
+  $('accCards').innerHTML = `
+  <div class="box acc"><h3><span class="logo" style="background:#1b2838;color:var(--steam)">ST</span>Steam ${st(A.steam.connected)}</h3>
+    <div class="sub">${A.steam.user ? `Gefundenes Steam-Konto: <b style="color:var(--fg)">${esc(A.steam.user)}</b>. ` : ''}Installierte Steam-Spiele werden immer gefunden. Für die komplette Bibliothek braucht es einen kostenlosen Web-API-Schlüssel.</div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div class="c"><div>Schlüssel-Seite öffnen und anmelden. Als „Domainname“ einfach <b>localhost</b> eintragen.</div><div><button class="btn" data-open="steam">${ICON.ext}Steam-Seite öffnen</button></div></div></div>
+      <div class="step"><span class="n">2</span><div class="c">Den angezeigten Schlüssel hier einfügen:<div class="in"><input id="steamKey" type="password" placeholder="32-stelliger Schlüssel" autocomplete="off">${A.steam.hasLocalId ? '' : '<input id="steamId" placeholder="SteamID64">'}<button class="btn primary" id="steamGo">Verbinden</button></div></div></div>
+    </div>${disc('steam', A.steam.connected)}</div>
+
+  <div class="box acc"><h3><span class="logo" style="background:#2a2a2a;color:#fff">EG</span>Epic Games ${st(A.epic.connected)}</h3>
+    <div class="sub">${A.epic.name ? `Angemeldet als <b style="color:var(--fg)">${esc(A.epic.name)}</b>. ` : ''}Nach der Anmeldung zeigt Epic eine Seite mit Text wie <code>{"authorizationCode":"…"}</code>.</div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div class="c">Im Browser bei Epic anmelden.<div><button class="btn" data-open="epic">${ICON.ext}Bei Epic anmelden</button></div></div></div>
+      <div class="step"><span class="n">2</span><div class="c">Den Code (oder den ganzen Text der Seite) einfügen:<div class="in"><input id="epicCode" placeholder='{"authorizationCode":"…"}' autocomplete="off"><button class="btn primary" id="epicGo">Verbinden</button></div><span class="hint">Der Code ist nur ein paar Minuten gültig.</span></div></div>
+    </div>${disc('epic', A.epic.connected)}</div>
+
+  <div class="box acc"><h3><span class="logo" style="background:#3d1e5a;color:var(--gog)">GOG</span>GOG ${st(A.gog.connected)}</h3>
+    <div class="sub">Nach der Anmeldung landest du auf einer fast leeren Seite. Kopiere dann die komplette Adresse aus der Adresszeile.</div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div class="c">Im Browser bei GOG anmelden.<div><button class="btn" data-open="gog">${ICON.ext}Bei GOG anmelden</button></div></div></div>
+      <div class="step"><span class="n">2</span><div class="c">Adresse einfügen (beginnt mit embed.gog.com/on_login_success):<div class="in"><input id="gogUrl" placeholder="https://embed.gog.com/on_login_success?…&code=…" autocomplete="off"><button class="btn primary" id="gogGo">Verbinden</button></div></div></div>
+    </div>${disc('gog', A.gog.connected)}</div>
+
+  <div class="box acc"><h3><span class="logo" style="background:#3a1517;color:#fa6a6a">itch</span>itch.io ${st(A.itch && A.itch.connected)}</h3>
+    <div class="sub">${A.itch && A.itch.name ? `Verbunden als <b style="color:var(--fg)">${esc(A.itch.name)}</b>. ` : ''}Über einen persönlichen API-Schlüssel erscheinen alle gekauften und geschenkten itch.io-Spiele.</div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div class="c"><div>Auf itch.io unter „API keys“ einen neuen Schlüssel erzeugen.</div><div><button class="btn" data-open="itch">${ICON.ext}itch.io-Seite öffnen</button></div></div></div>
+      <div class="step"><span class="n">2</span><div class="c">Schlüssel einfügen:<div class="in"><input id="itchKey" type="password" placeholder="API-Schlüssel" autocomplete="off"><button class="btn primary" id="itchGo">Verbinden</button></div></div></div>
+    </div>${disc('itch', A.itch && A.itch.connected)}</div>
+
+  <div class="box"><h3>Weitere Launcher</h3>
+    <div class="sub">Installierte Spiele dieser Launcher werden beim Einlesen automatisch erkannt und können direkt gestartet werden. Deren komplette Bibliothek (auch nicht installierte Spiele) ist leider nicht abrufbar, weil die Anbieter keine offene Schnittstelle haben.</div>
+    <div class="pills">${['EA', 'Ubisoft', 'Battle.net', 'Rockstar', 'Amazon', 'Riot', 'Xbox'].map(s => { const n = S.games.filter(g => g.store === s).length; return `<span class="pill"><b class="b-${sc(s)}">${esc(s === 'Xbox' ? 'Xbox / Game Pass' : s === 'EA' ? 'EA app' : s === 'Ubisoft' ? 'Ubisoft Connect' : s === 'Amazon' ? 'Amazon Games' : s)}</b> <span>${n ? n + ' Spiel' + (n > 1 ? 'e' : '') : 'keine gefunden'}</span></span>`; }).join('')}</div></div>`;
+
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => api('accounts/open', { store: b.dataset.open }).then(() => toast('Im Browser geöffnet.')).catch(e => toast(e.message, 'err')));
+  document.querySelectorAll('[data-disc]').forEach(b => b.onclick = async () => { await api('accounts/disconnect', { store: b.dataset.disc }); toast('Verbindung getrennt.'); await load(); renderAccounts(); });
+  const go = (btn, fn) => { const b = $(btn); b.onclick = async () => { b.disabled = true; try { const m = await fn(); toast(m); await load(); renderAccounts(); offerScan(); } catch (e) { toast(e.message, 'err'); } finally { b.disabled = false; } }; };
+  go('steamGo', async () => { const r = await api('accounts/steam', { api_key: $('steamKey').value, steam_id: $('steamId') ? $('steamId').value : '' }); return `Steam verbunden – ${r.count} Spiele in deiner Bibliothek.`; });
+  go('epicGo', async () => { const r = await api('accounts/epic', { code: $('epicCode').value }); return `Epic verbunden${r.name ? ' als ' + r.name : ''}.`; });
+  go('gogGo', async () => { await api('accounts/gog', { url: $('gogUrl').value }); return 'GOG verbunden.'; });
+  go('itchGo', async () => { const r = await api('accounts/itch', { api_key: $('itchKey').value }); return `itch.io verbunden als ${r.name} – ${r.count} Spiele.`; });
+}
+function offerScan() {
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = 'Jetzt die Bibliothek neu einlesen? <button class="btn primary" style="margin-left:10px;padding:5px 12px">Einlesen</button>';
+  el.querySelector('button').onclick = () => { el.remove(); scan(); show('lib'); };
+  $('toasts').appendChild(el); setTimeout(() => el.remove(), 12000);
+}
+
+// ---------------- Live-Ereignisse ----------------
+const es = new EventSource('/api/events?t=' + encodeURIComponent(T));
+es.onmessage = ev => {
+  const m = JSON.parse(ev.data);
+  if (m.type === 'progress') showProgress(m);
+  else if (m.type === 'progress-note') $('progTxt').textContent = m.text;
+  else if (m.type === 'queue') { if (S) { const before = (S.queue || []).map(i => i.id + i.status).join(); S.queue = m.items; const after = S.queue.map(i => i.id + i.status).join(); renderDlMini(); if (ui.view === 'dl') renderDl(); if (before !== after) notifyQueue(); } }
+  else if (m.type === 'update') { if (!$('detail').classList.contains('on')) load(); }
+  else if (m.type === 'done') { hideProgress(); toast(`Bibliothek aktualisiert – ${m.count} Spiele.`); load(); }
+  else if (m.type === 'error') { hideProgress(); toast(m.text, 'err'); load(); }
+  else if (m.type === 'warn') toast(m.text, 'warn');
+};
+es.onopen = () => { if (S) load(); };
+
+// Beim Start: noch nie eingelesen oder letzter Durchlauf unterbrochen -> automatisch (weiter) einlesen
+load().then(() => { if (S && !S.scanning && ((!S.games.length && !S.scannedAt) || S.partial)) scan(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "spielebibliothek",
+  "version": "2.0.0",
+  "description": "Alle Spiele aus Steam, Epic Games, GOG, itch.io & weiteren Launchern an einem Ort – mit FPS-Schätzung pro Gerät, Angeboten, Favoriten, Zufallsvorschlag und GOG-Downloads.",
+  "private": true,
+  "license": "MIT",
+  "author": "Miax (https://github.com/Miaxxiemuss)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Miaxxiemuss/Game-check.git"
+  },
+  "main": "src/app.js",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "os": [
+    "win32"
+  ],
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js --kein-fenster --port=8765",
+    "build": "node build.js",
+    "installieren": "node build.js --installieren",
+    "exe": "node build.js --exe"
+  },
+  "devDependencies": {
+    "postject": "1.0.0-alpha.6"
+  }
+}
