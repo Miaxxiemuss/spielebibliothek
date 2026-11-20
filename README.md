@@ -1,4 +1,4 @@
-# 🎮 Game-check – Spielebibliothek
+# 🎮 Spielebibliothek
 
 **Alle deine PC-Spiele an einem Ort**: Steam, Epic Games, GOG, itch.io, EA app, Ubisoft Connect, Battle.net und mehr.
 Dazu für jedes Gerät eine **FPS-Schätzung**, eine **Angebotsübersicht** über alle großen Stores, **Favoriten**, ein **Zufallsspiel-Vorschlag** und **GOG-Downloads direkt in der App**.
@@ -38,8 +38,8 @@ Dazu für jedes Gerät eine **FPS-Schätzung**, eine **Angebotsübersicht** übe
 **Voraussetzungen:** Windows 10/11, [Node.js](https://nodejs.org/) **22.5 oder neuer**, ein Chromium-Browser (Edge, Chrome oder Brave) für das App-Fenster.
 
 ```bash
-git clone https://github.com/Miaxxiemuss/Game-check.git
-cd Game-check
+git clone https://github.com/Miaxxiemuss/spielebibliothek.git
+cd spielebibliothek
 npm run installieren
 ```
 

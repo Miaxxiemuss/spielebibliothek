@@ -7,7 +7,7 @@
   "author": "Miax (https://github.com/Miaxxiemuss)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Miaxxiemuss/Game-check.git"
+    "url": "https://github.com/Miaxxiemuss/spielebibliothek.git"
   },
   "main": "src/app.js",
   "engines": {
